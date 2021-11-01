@@ -28,5 +28,5 @@ jobs:
         context: .
         file: build/docker/Dockerfile
         push: true
-        tags: ghcr.io/arivum/netpolviz/netpolviz:${{ steps.get_version.outputs.VERSION }},ghcr.io/arivum/netpolviz/netpolviz:latest
+        tags: ghcr.io/arivum/netpolviz:${{ steps.get_version.outputs.VERSION }},ghcr.io/arivum/netpolviz:latest
   
