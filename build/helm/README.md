@@ -8,8 +8,8 @@ Before using NetpolViz, please read our [documentation](https://github.com/arivu
 | Property       |   Description         | Default               |
 | -------------- | --------------------- | --------------------- |
 | `replicaCount` | Number of replicas    | `1`                   |
-| `image.repository`  | Image repository | `ghcr.io/arivum/dynratelimiter/dynratelimiter-operator` |
-| `image.tag`  | Image tag  | `latest` |
+| `image.repository`  | Image repository | `ghcr.io/arivum/netpolviz` |
+| `image.tag`  | Image tag  | `0.1.0` |
 | `image.pullPolicy`  | Image pull policy | `IfNotPresent` |
 | `imagePullSecrets`  | A list of image pull secrets when using your own image | `[]` |
 | `nameOverride`  | Overrides the basename for deployments etc. | `""` |
