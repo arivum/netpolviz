@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>K8S NetworkPolicy Overview</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700|Roboto:300,400,500,700&display=swap" rel="stylesheet">
+    <style>
+        /* .navbar.is-primary, .hero.is-primary {
+			background-color: #4d5269;
+		}
+		.navbar.is-primary h1, .hero.is-primary h1, .navbar.is-primary h2, .hero.is-primary h2 {
+			font-weight: 300;
+			font-family: 'Montserrat';
+		}
+		.navbar.is-primary .navbar-start>a.navbar-item:hover, .navbar.is-primary .navbar-start>a.navbar-item:active, .navbar.is-primary .navbar-start>a.navbar-item:visited {
+			background-color: #5c6380;
+		}
+		.links line {
+			stroke: white;
+			stroke-opacity: .2;
+		}
+
+		.svg_container {
+			padding: 1.5rem;
+			box-shadow: 2px 2px 7px #43485c33;
+			background-color: #43485c08;
+		}
+		
+		.pod {
+			fill: #fff;
+			stroke: orange;
+			stroke-width: 2px;
+			cursor: pointer;
+			transition: fill .5s ease-in-out 0s, transform .5s ease-in-out 0s;
+			transform-box: fill-box;
+			transform-origin: center;
+			stroke-linejoin: round;
+		}
+		
+		.pod:hover {
+			fill: #EEE;
+			transform: scale(1.2);
+		}
+		
+		.pod_dot {
+			pointer-events: none;
+			fill: #43485c;
+		}
+		
+		.namespace.focus {
+			fill: #43485c;
+		}
+
+		.namespace.focus:hover {
+			fill: #43485cdd;
+		}
+
+		.namespace {
+			fill: #43485c55;
+			stroke: white;
+			stroke-width: 1px;
+			stroke-linejoin: round;
+			cursor: pointer;
+			transition: stroke-width .5s ease-in-out 0s, stroke .5s ease-in-out 0s, fill .5s ease-in-out 0s;
+
+		}
+
+		.namespace:hover {
+			fill: #43485c33;
+		}
+
+		.namespace_name {
+			font-size: 1.8rem;
+			font-weight: 300;
+			pointer-events: none;
+			fill: white;
+		}
+		
+		.pod_name {
+			font-size: 1.3rem;
+			fill: #ffd17c;
+			pointer-events: none;
+			font-weight: 300;
+		}
+
+		.root, svg * {
+			transition: transform .5s ease-in-out 0s;
+			transform-origin: center center;
+			font-family: 'Roboto';
+		}
+
+		@media screen and (min-width: 1024px) {
+			#namespace_select + .ss-main {
+				width: 25%;
+				float: right;
+				border: 1px solid #43485c88;
+				border-radius: 3px;
+			}
+		}
+
+		.ss-value, .ss-content .ss-list .ss-option.ss-highlighted, .ss-content .ss-list .ss-option:hover {
+			background-color: #43485c !important;
+		}
+
+		.ss-main .ss-multi-selected {
+			padding: .5rem 1rem !important;
+		}
+
+		.ss-main .ss-multi-selected .ss-values .ss-value {
+			padding: 2px 8px !important;
+			font-size: .8rem !important;
+		}
+		
+		.ss-main .ss-multi-selected .ss-values .ss-value .ss-value-delete {
+			transition: background-color .2s ease-in-out 0s;
+			padding: 0rem.3rem;
+			background-color: #FFFFFF44;
+			margin: 2px -2px 2px 6px !important;
+		}
+
+		.ss-main .ss-multi-selected .ss-values .ss-value .ss-value-delete:hover {
+			background-color: #FFFFFF66;
+		} */
+        
+        .navbar.is-primary,
+        .hero.is-primary {
+            background-color: #004d40;
+        }
+        
+        .navbar.is-primary h1,
+        .hero.is-primary h1,
+        .navbar.is-primary h2,
+        .hero.is-primary h2 {
+            font-weight: 300;
+            font-family: 'Montserrat';
+        }
+        
+        .navbar.is-primary .navbar-start>a.navbar-item:hover,
+        .navbar.is-primary .navbar-start>a.navbar-item:active,
+        .navbar.is-primary .navbar-start>a.navbar-item:visited {
+            background-color: #004237;
+        }
+        
+        .links line {
+            stroke: white;
+            stroke-opacity: .2;
+        }
+        
+        .svg_container {
+            padding: 1.5rem;
+            box-shadow: 2px 2px 7px #43485c33;
+            background-color: #43485c08;
+        }
+        
+        .pod {
+            fill: #fff;
+            stroke: #7b1fa2;
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: fill .5s ease-in-out 0s, transform .5s ease-in-out 0s;
+            transform-box: fill-box;
+            transform-origin: center;
+            stroke-linejoin: round;
+        }
+        
+        .pod:hover {
+            fill: #EEE;
+            transform: scale(1.2);
+        }
+        
+        .pod_dot {
+            pointer-events: none;
+            fill: #43485c;
+        }
+        
+        .namespace.focus {
+            fill: #004d40;
+        }
+        
+        .namespace.focus:hover {
+            fill: #003d33;
+        }
+        
+        .namespace {
+            fill: #00695c55;
+            stroke: white;
+            stroke-width: 1px;
+            stroke-linejoin: round;
+            cursor: pointer;
+            transition: stroke-width .5s ease-in-out 0s, stroke .5s ease-in-out 0s, fill .5s ease-in-out 0s;
+        }
+        
+        .namespace:hover {
+            fill: #00695c55;
+        }
+        
+        .namespace_name {
+            font-size: 1.8rem;
+            font-weight: 300;
+            pointer-events: none;
+            fill: white;
+        }
+        
+        .pod_name {
+            font-size: 1.3rem;
+            fill: #f3e5f5;
+            pointer-events: none;
+        }
+        
+        .root,
+        svg * {
+            transition: transform .5s ease-in-out 0s;
+            transform-origin: center center;
+            font-family: 'Roboto';
+        }
+        
+        @media screen and (min-width: 1024px) {
+            #namespace_select+.ss-main {
+                width: 25%;
+                float: right;
+                border: 1px solid #43485c88;
+                border-radius: 3px;
+            }
+        }
+        
+        .ss-value,
+        .ss-content .ss-list .ss-option.ss-highlighted,
+        .ss-content .ss-list .ss-option:hover {
+            background-color: #004d40 !important;
+        }
+        
+        .ss-main .ss-multi-selected {
+            padding: .5rem 1rem !important;
+        }
+        
+        .ss-main .ss-multi-selected .ss-values .ss-value {
+            padding: 2px 8px !important;
+            font-size: .8rem !important;
+        }
+        
+        .ss-main .ss-multi-selected .ss-values .ss-value .ss-value-delete {
+            /* border: 1px solid #FFFFFF33; */
+            transition: background-color .2s ease-in-out 0s;
+            padding: 0rem.3rem;
+            background-color: #FFFFFF44;
+            margin: 2px -2px 2px 6px !important;
+        }
+        
+        .ss-main .ss-multi-selected .ss-values .ss-value .ss-value-delete:hover {
+            background-color: #FFFFFF66;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.25.0/slimselect.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/slim-select/1.25.0/slimselect.min.css" rel="stylesheet"></link>
+
+</head>
+
+<body>
+    <script src="https://d3js.org/d3.v5.js"></script>
+
+
+    <header>
+        <div>
+            <nav class="navbar is-primary">
+                <div class="container">
+                    <div class="navbar-brand">
+
+                        <div class="navbar-menu">
+                            <div class="navbar-start">
+                                <a href="#" class="navbar-item menu-item menu-item-type- menu-item-object- menu-item-2">
+								Home
+							</a>
+                            </div>
+                            <div class="navbar-end">
+
+                            </div>
+                        </div>
+                    </div>
+            </nav>
+            </div>
+            <section class="hero is-primary has-text-centered">
+                <div class="hero-body">
+                    <div class="container">
+                        <h1 class="title">NetpolViz</h1>
+                        <h2 class="subtitle">Allowed Pod-to-Pod connections visualization</h2>
+                    </div>
+                </div>
+            </section>
+    </header>
+
+
+    <section class="section">
+        <div class="container">
+            <div class="svg_container">
+                <select id="namespace_select" multiple="multiple">
+				</select>
+                <svg width="100%" height="90vh" id="svg"></svg>
+            </div>
+            <script>
+                var svg = d3.select("svg"),
+                    namespace_select = d3.select("#namespace_select"),
+                    width = document.getElementById('svg').clientWidth,
+                    height = document.getElementById('svg').clientHeight,
+                    namespaces,
+                    groupIds,
+                    pod_sidelength = 65,
+                    namespace_sidelength = 200,
+                    node,
+                    node_dots,
+                    link,
+                    groups,
+                    pods,
+                    links,
+                    simulation,
+                    nodes = [],
+                    focus = null,
+                    namespaceColumns,
+                    pod_texts,
+                    namespaceFilter = []
+
+
+                function draw() {
+                    d3.json("api").then((graph, error) => {
+                        if (error) throw error
+                        svg.selectAll("*").remove()
+                        nodes = []
+                        links = []
+                        namespaces = []
+                        groupIds = []
+                        node = []
+                        simulation = null
+                        pod_texts = []
+                        node_dots = []
+                        link = []
+                        groups = []
+                        focus = null
+                        for (namespace in graph.Pods) {
+
+                            pods = graph.Pods[namespace].map(x => {
+                                if (x.metadata.ownerReferences.length > 0) {
+                                    name = x.metadata.ownerReferences[0].name
+                                    if (name.split("-").length > 1) {
+                                        name = name.split("-").slice(0, name.split("-").length - 1)
+                                    }
+                                    return {
+                                        id: x.metadata.ownerReferences[0].uid,
+                                        title: name + "\n(" + x.metadata.ownerReferences[0].kind + ")",
+                                        name: name,
+                                        namespace: namespace
+                                    }
+                                }
+                                return {
+                                    id: x.metadata.uid,
+                                    title: x.metadata.name + "\n(Pod)",
+                                    name: x.metadata.name,
+                                    namespace: namespace
+                                }
+                            }).filter(pod => {
+                                if (namespaceFilter.length > 0) return namespaceFilter.indexOf(pod.namespace) !== -1
+                                return true
+                            }).filter(function(item, pos, self) {
+                                return self.findIndex(el => el.id == item.id && el.name == item.name && el.namespace == item.namespace) == pos;
+                            })
+                            nodes = nodes.concat(pods)
+                        }
+
+                        links = graph.AllowedConnections.map(x => {
+                                return {
+                                    source: x.FromUID,
+                                    target: x.ToUID,
+                                    value: 3
+                                }
+                            })
+                            .filter(connection => nodes.map(pod => pod.id).indexOf(connection.source) >= 0 && nodes.map(pod => pod.id).indexOf(connection.target) >= 0)
+                            .filter(function(item, pos, self) {
+                                return self.findIndex(el => el.source == item.source && el.target == item.target) == pos;
+                            })
+
+                        let index = 0
+                        groupIds = d3.set(nodes.map(function(n) {
+                                return n.namespace
+                            }))
+                            .values()
+                            .map(groupId => {
+                                return {
+                                    groupId: groupId,
+                                    count: nodes.filter(function(n) {
+                                        return n.namespace == groupId
+                                    }).length,
+                                    index: index++
+                                }
+                            })
+                            .map(group => group)
+                            .filter(group => {
+                                if (namespaceFilter.length > 0) return namespaceFilter.indexOf(group.groupId) !== -1
+                                return true
+                            })
+
+                        namespace_select
+                            .selectAll("option")
+                            .data(groupIds)
+                            .enter().append("option")
+                            .attr("value", d => d.groupId)
+                            .text(d => d.groupId)
+
+                        groups = svg.append('g')
+                            .attr('class', 'groups root')
+                            .attr('id', 'groups')
+
+
+                        link = svg.append('g')
+                            .attr('class', 'links root')
+                            .selectAll('line')
+                            .data(links)
+                            .enter().append('line')
+                            .attr('stroke-width', d => d.value)
+
+                        root = svg.append('g')
+                            .attr('class', 'nodes root')
+                            .selectAll('g')
+                            .data(nodes)
+                            .enter().append("g")
+
+
+                        //	<image xlink:href="firefox.jpg" x="0" y="0" height="50px" width="50px"></image>  	
+                        svg.append("image")
+                            .attr("xlink:href", "k8s.png")
+                            .attr("width", "80")
+                            .attr("height", "80")
+                            .attr("x", d => width - 80)
+                            .attr("y", d => height - 80)
+
+
+                        namespaceColumns = Math.ceil(Math.sqrt(groupIds.length))
+
+
+                        namespaces = groups.selectAll('g')
+                            .data(groupIds, d => d.groupId)
+                            .enter()
+                            .append('path')
+                            .attr("class", "namespace")
+                            .attr('id', function(d) {
+                                return d.groupId
+                            })
+                            .on("click", function(d) {
+                                if (focus !== d) zoom(d)
+                                else fit()
+                                d3.event.stopPropagation()
+                            })
+
+
+                        namespaces
+                            .attr("points", d => {
+                                let x = namespace_sidelength * 2 * Math.sqrt(3) * (d.index % namespaceColumns) + (Math.floor(d.index / namespaceColumns) % 2 == 1) * namespace_sidelength * Math.sqrt(3)
+                                let y = namespace_sidelength * 3 * Math.floor(d.index / namespaceColumns)
+                                d.points = points(x, y, namespace_sidelength)
+                                return JSON.stringify(d.points)
+                            })
+                            .attr("d", d => "M" + d.points.join("L") + "Z")
+
+                        node = root
+                            .append("polyline")
+                            .attr("points", d => {
+                                let box = document.getElementById(d.namespace).getBBox()
+                                return points(box.x + 0.5 * box.width, box.y + 0.5 * box.height, pod_sidelength / 2).map((p) => p.join(",")).join(' ')
+                            })
+                            .attr('class', "pod")
+                            .attr('id', d => d.id)
+                            .call(d3.drag()
+                                .on('start', dragstarted)
+                                .on('drag', dragged)
+                                .on('end', dragended))
+
+
+                        node.append("title")
+                            .text(d => d.title)
+
+                        node_dots = root.append("circle")
+                            .attr("r", "6")
+                            .attr("class", "pod_dot")
+
+                        pod_texts = root
+                            .append("text")
+
+
+                        pod_texts.append('tspan')
+                            .attr("class", "pod_name")
+                            .text(d => d.name)
+                            .each(wrap);
+
+                        namespaces.append("title")
+                            .text(d => d.groupId)
+
+                        namespace_texts = groups.selectAll("g")
+                            .data(groupIds, d => d.groupId)
+                            .enter()
+                            .append("text")
+                            .attr("class", "namespace_name")
+                            .text(d => d.groupId)
+                            .each(function(d) {
+                                let self = d3.select(this),
+                                    textLength = self.node().getComputedTextLength(),
+                                    text = self.text()
+                                let box = document.getElementById(d.groupId).getBBox()
+                                d.x = box.x + 0.5 * box.width - 0.5 * textLength
+                                d.y = box.y + 0.5 * box.height
+                            })
+                            .attr("x", d => d.x)
+                            .attr("y", d => d.y)
+
+
+
+                        simulation = d3.forceSimulation()
+                            .force('link', d3.forceLink().id(d => d.id).strength(.02))
+                            .force('charge', d3.forceManyBody(d3.forceManyBody().strength(5)))
+                            //.force('center', d3.forceCenter())
+                            .force("collide", d3.forceCollide(pod_sidelength + 100).strength(1).iterations(100))
+
+                        simulation
+                            .nodes(nodes)
+                            .on('tick', ticked)
+                            .force('link')
+                            .links(links)
+
+                        fit()
+
+                        function ticked() {
+                            node
+                                .attr("point", d => {
+                                    let points = JSON.parse(document.getElementById(d.namespace).getAttribute("points"))
+                                    let polygon = d3.polygonHull(points)
+                                    var box = [
+                                        [d.x - 30, d.y],
+                                        [d.x + pod_sidelength * Math.sqrt(3) + 30, d.y],
+                                        [d.x - 30, d.y + 2 * pod_sidelength + 30],
+                                        [d.x + pod_sidelength * Math.sqrt(3) + 30, d.y + 2 * pod_sidelength + 10]
+                                    ]
+                                    if (typeof d.old_x == typeof undefined || typeof d.old_y == typeof undefined) {
+                                        d.x = d.old_x = (points[0][0])
+                                        d.y = d.old_y = (points[1][1] + points[2][1]) / 2
+                                    }
+
+                                    for (let point of box) {
+                                        if (!d3.polygonContains(polygon, point)) {
+                                            d.x = d.old_x
+                                            d.y = d.old_y
+                                        }
+                                    }
+
+                                    d.old_x = d.x
+                                    d.old_y = d.y
+                                    return `${d.x},${d.y}`
+
+                                })
+                                .attr("points", d => {
+                                    d.points = points(d.x, d.y, pod_sidelength / 2).map((p) => p.join(",")).join(' ')
+                                    return d.points
+                                })
+
+                            pod_texts
+                                .attr("x", d => d.x + pod_sidelength / 2 * Math.sqrt(3))
+                                .attr("y", d => d.y + pod_sidelength * 2 + 25)
+                                .attr("text-anchor", "middle")
+
+
+                            node_dots
+                                .attr("cx", d => d.x + pod_sidelength / 2 * Math.sqrt(3))
+                                .attr("cy", d => d.y + pod_sidelength)
+
+
+                            link
+                                .attr('x1', d => d.source.x + pod_sidelength / 2 * Math.sqrt(3))
+                                .attr('y1', d => d.source.y + pod_sidelength)
+                                .attr('x2', d => d.target.x + pod_sidelength / 2 * Math.sqrt(3))
+                                .attr('y2', d => d.target.y + pod_sidelength)
+
+                        }
+
+                    })
+                }
+
+                draw()
+                new SlimSelect({
+                    select: '#namespace_select',
+                    placeholder: "All Namespaces",
+                    closeOnSelect: false,
+                    hideSelectedOption: true,
+                    onChange: (info) => {
+                        namespaceFilter = info.map(d => d.value)
+                        draw()
+                    }
+                })
+
+                function zoom(d) {
+                    focus = d
+                    let namespace = document.getElementById(d.groupId)
+                    let box = namespace.getBBox()
+                    let scale = Math.min(width / box.width, height / box.height) * 0.95
+                    Array.from(document.getElementsByClassName('root')).forEach(e => e.setAttribute("transform", `scale(${scale}) translate(${ 0.5 * width - (box.x + 0.5 * box.width)}, ${ 0.5 * height - (box.y + 0.5 * box.height)})`))
+                    Array.from(document.getElementsByClassName('namespace')).forEach(e => e.classList.remove("focus"))
+                    namespace.classList.add("focus")
+
+                }
+
+                function wrap() {
+                    var self = d3.select(this),
+                        textLength = self.node().getComputedTextLength(),
+                        text = self.text()
+                    while (textLength > pod_sidelength * Math.sqrt(3) && text.length > 0) {
+                        text = text.slice(0, -1)
+                        self.text(text + '…')
+                        textLength = self.node().getComputedTextLength()
+                    }
+                }
+
+                var points = function(x, y, namespace_sidelength) {
+                    return [
+                        [Math.sqrt(3) * namespace_sidelength + x, y],
+                        [2 * Math.sqrt(3) * namespace_sidelength + x, namespace_sidelength + y],
+                        [2 * Math.sqrt(3) * namespace_sidelength + x, 3 * namespace_sidelength + y],
+                        [Math.sqrt(3) * namespace_sidelength + x, 4 * namespace_sidelength + y],
+                        [x, 3 * namespace_sidelength + y],
+                        [x, namespace_sidelength + y],
+                        [Math.sqrt(3) * namespace_sidelength + x, y]
+                    ]
+                }
+                var polygonGenerator = function(groupId) {
+                    var node_coords = node
+                        .filter(d => d.namespace == groupId)
+                        .data()
+                        .map(d => [d.x, d.y])
+
+                    return d3.polygonHull(node_coords)
+                }
+
+                // drag nodes
+                function dragstarted(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+                    d.fx = d.x
+                    d.fy = d.y
+                }
+
+                function dragged(d) {
+                    d.fx = d3.event.x
+                    d.fy = d3.event.y
+                }
+
+                function dragended(d) {
+                    if (!d3.event.active) simulation.alphaTarget(0)
+                    d.fx = null
+                    d.fy = null
+                }
+
+                function fit() {
+                    focus = null
+                    let box = document.getElementById('groups').getBBox()
+                    let scale = Math.min(width / box.width, height / box.height) * 0.95
+                    Array.from(document.getElementsByClassName('root')).forEach(e => e.setAttribute("transform", `scale(${scale}) translate(${ 0.5 * width - (box.x + 0.5 * box.width)}, ${ 0.5 * height - (box.y + 0.5 * box.height)})`))
+                    Array.from(document.getElementsByClassName('namespace')).forEach(e => e.classList.add("focus"))
+                }
+            </script>
+        </div>
+    </section>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+name: Helm
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  helm-build:
+    name: Helm Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get the version
+      id: release_name
+      run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+
+    - name: Checkout tag
+      uses: actions/checkout@v2
+      with:
+        path: ${{ steps.release_name.outputs.VERSION }}
+        ref: ${{ steps.release_name.outputs.VERSION }}
+
+    - name: Checkout helm-charts
+      uses: actions/checkout@v2
+      with:
+        repository: arivum/helm-charts
+        path: helm-charts
+        token: ${{ secrets.GH_TOKEN }}
+    - name: Build chart repo
+      run: |
+        mkdir -p ${{ steps.release_name.outputs.VERSION }}/artifacts
+        cd ${{ steps.release_name.outputs.VERSION }}/artifacts
+        sed -i "s#tag: latest#tag: ${{ steps.release_name.outputs.VERSION }}#g" ../build/helm/values.yaml
+        sed -i -e "s#version: 0.0.0#version: ${{ steps.release_name.outputs.VERSION }}#g" -e "s#appVersion: \"0.0.0\"#appVersion: \"${{ steps.release_name.outputs.VERSION }}\"#g" ../build/helm/Chart.yaml
+        helm package ../build/helm
+        cp ../build/helm/README.md ../../helm-charts/netpolviz.md
+        mv * ../../helm-charts/
+        cd ../../helm-charts
+        helm repo index . --url https://arivum.github.io/helm-charts
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "added netpolviz ${{ steps.release_name.outputs.VERSION }}"
+        git push
