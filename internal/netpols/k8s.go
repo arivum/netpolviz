@@ -9,6 +9,7 @@ import (
 	networking "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -102,7 +103,15 @@ func (p PodList) SetCorrespondingNamespaces(namespaces map[string]core.Namespace
 
 // BuildK8SContext initializes k8s API context
 func BuildK8SContext(kubeconfig string) (*kubernetes.Clientset, error) {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	var (
+		config *rest.Config
+		err    error
+	)
+	if kubeconfig == "in-cluster" {
+		config, err = rest.InClusterConfig()
+	} else {
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+	}
 	if err != nil {
 		return nil, err
 	}
