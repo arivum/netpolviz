@@ -2,6 +2,8 @@
 
 NetpolViz visualizes allowed pod2pod connections in clusters that are restricted by NetworkPolicies.
 
+
+![](./assets/screenshot.png)
 ## Howto: Deploy
 
 ```bash
