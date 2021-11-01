@@ -22,17 +22,17 @@ jobs:
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-    - name: Build and push dynratelimiter
+    - name: Build and push netpolviz image
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: build/docker/dynratelimiter/Dockerfile
+        file: build/docker/Dockerfile
         push: true
         tags: ghcr.io/arivum/netpolviz/netpolviz:${{ steps.get_version.outputs.VERSION }},ghcr.io/arivum/netpolviz/netpolviz:latest
     - name: Build and push operator
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: build/docker/dynratelimiter-operator/Dockerfile
+        file: build/docker/Dockerfile
         push: true
         tags: ghcr.io/arivum/netpolviz/netpolviz-operator:${{ steps.get_version.outputs.VERSION }},ghcr.io/arivum/netpolviz/netpolviz-operator:latest
