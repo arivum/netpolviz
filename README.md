@@ -1,6 +1,6 @@
 # NetpolViz
 
-NetpolViz visualizes allowed pod2pod connections in clusters that are restricted by NetworkPolicies.
+NetpolViz visualizes allowed pod2pod connections in clusters that are controlled by NetworkPolicies.
 
 
 ![](./assets/screenshot.png)
