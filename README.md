@@ -4,7 +4,9 @@ NetpolViz visualizes allowed pod2pod connections in clusters that are controlled
 
 
 ![](./assets/screenshot.png)
-## Howto: Deploy
+## Howto: Deploy via Helm
+
+For Helm chart configuration properties see the [Chart documentation](https://arivum.github.io/helm-charts/?chart=netpolviz)
 
 ```bash
 # add arivum Helm repo
